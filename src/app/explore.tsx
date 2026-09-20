@@ -1,33 +1,92 @@
+import React, { useState } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View, Alert } from 'react-native';
 import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
-import { Platform, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
 
-import { ExternalLink } from '@/components/external-link';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Collapsible } from '@/components/ui/collapsible';
 import { WebBadge } from '@/components/web-badge';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useComm } from '@/context/commContext';
+import { router } from 'expo-router';
 
 export default function TabTwoScreen() {
+  const { addCustomItem } = useComm();
   const safeAreaInsets = useSafeAreaInsets();
   const insets = {
     ...safeAreaInsets,
-    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
+    // Slightly reduced bottom inset padding
+    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.two,
   };
   const theme = useTheme();
 
+  // Form State
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [buttonLabel, setButtonLabel] = useState('');
+  const [speechText, setSpeechText] = useState('');
+
+  const handleTakePhoto = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    
+    if (!permissionResult.granted) {
+      Alert.alert('Permission Denied', 'Camera permission is required to take pictures for buttons.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
+  const handleSaveButton = async () => {
+    if (!imageUri) {
+      Alert.alert('Missing Image', 'Please take a picture for the button first.');
+      return;
+    }
+    if (!speechText) {
+      Alert.alert('Missing Speech Text', 'Please enter the text that should be read when this button is pressed.');
+      return;
+    }
+
+    const newButton = {
+      id: Date.now().toString(),
+      label: buttonLabel || speechText,
+      speechText: speechText,
+      imageUri: imageUri,
+    };
+
+    try {
+      await addCustomItem(newButton);
+
+      router.back()
+      
+      setImageUri(null);
+      setButtonLabel('');
+      setSpeechText('');
+    } catch (error) {
+      console.error('Failed to save button:', error);
+      Alert.alert('Error', 'Could not save the button. Please try again.');
+    }
+  };
+
   const contentPlatformStyle = Platform.select({
     android: {
-      paddingTop: insets.top,
+      paddingTop: Math.max(insets.top - 10, Spacing.two), // Reduced top padding
       paddingLeft: insets.left,
       paddingRight: insets.right,
       paddingBottom: insets.bottom,
     },
     web: {
-      paddingTop: Spacing.six,
+      paddingTop: Spacing.three, // Reduced from Spacing.six
       paddingBottom: Spacing.four,
     },
   });
@@ -39,86 +98,54 @@ export default function TabTwoScreen() {
       contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}>
       <ThemedView style={styles.container}>
         <ThemedView style={styles.titleContainer}>
-          <ThemedText type="subtitle">Explore</ThemedText>
+          <ThemedText type="subtitle">Add Communication Button</ThemedText>
           <ThemedText style={styles.centerText} themeColor="textSecondary">
-            This starter app includes example{'\n'}code to help you get started.
+            Take a photo, label it, and set the robotic voice phrase.
           </ThemedText>
-
-          <ExternalLink href="https://docs.expo.dev" asChild>
-            <Pressable style={({ pressed }) => pressed && styles.pressed}>
-              <ThemedView type="backgroundElement" style={styles.linkButton}>
-                <ThemedText type="link">Expo documentation</ThemedText>
-                <SymbolView
-                  tintColor={theme.text}
-                  name={{ ios: 'arrow.up.right.square', android: 'link', web: 'link' }}
-                  size={12}
-                />
-              </ThemedView>
-            </Pressable>
-          </ExternalLink>
         </ThemedView>
 
-        <ThemedView style={styles.sectionsWrapper}>
-          <Collapsible title="File-based routing">
-            <ThemedText type="small">
-              This app has two screens: <ThemedText type="code">src/app/index.tsx</ThemedText> and{' '}
-              <ThemedText type="code">src/app/explore.tsx</ThemedText>
-            </ThemedText>
-            <ThemedText type="small">
-              The layout file in <ThemedText type="code">src/app/_layout.tsx</ThemedText> sets up
-              the tab navigator.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/router/introduction">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
-
-          <Collapsible title="Android, iOS, and web support">
-            <ThemedView type="backgroundElement" style={styles.collapsibleContent}>
-              <ThemedText type="small">
-                You can open this project on Android, iOS, and the web. To open the web version,
-                press <ThemedText type="smallBold">w</ThemedText> in the terminal running this
-                project.
+        <ThemedView style={styles.formContainer}>
+          {/* Photo Preview / Capture Box */}
+          <Pressable style={[styles.imagePreviewBox, { borderColor: theme.text }]} onPress={handleTakePhoto}>
+            {imageUri ? (
+              <Image source={{ uri: imageUri }} style={styles.capturedImage} />
+            ) : (
+              <ThemedText style={styles.centerText} type="small">
+                Tap here to open Camera & Take Picture
               </ThemedText>
-              <Image
-                source={require('@/assets/images/tutorial-web.png')}
-                style={styles.imageTutorial}
-              />
-            </ThemedView>
-          </Collapsible>
+            )}
+          </Pressable>
 
-          <Collapsible title="Images">
-            <ThemedText type="small">
-              For static images, you can use the <ThemedText type="code">@2x</ThemedText> and{' '}
-              <ThemedText type="code">@3x</ThemedText> suffixes to provide files for different
-              screen densities.
-            </ThemedText>
-            <Image source={require('@/assets/images/react-logo.png')} style={styles.imageReact} />
-            <ExternalLink href="https://reactnative.dev/docs/images">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
+          {/* Optional Button Name Input */}
+          <View style={styles.inputGroup}>
+            <ThemedText type="small">Button Label (Optional)</ThemedText>
+            <TextInput
+              style={[styles.input, { color: theme.text, borderColor: theme.text }]}
+              placeholder="e.g., Toy, Ball, Mom"
+              placeholderTextColor="#888"
+              value={buttonLabel}
+              onChangeText={setButtonLabel}
+            />
+          </View>
 
-          <Collapsible title="Light and dark mode components">
-            <ThemedText type="small">
-              This template has light and dark mode support. The{' '}
-              <ThemedText type="code">useColorScheme()</ThemedText> hook lets you inspect what the
-              user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
+          {/* Speech Text Input */}
+          <View style={styles.inputGroup}>
+            <ThemedText type="small">Spoken Text (Required)</ThemedText>
+            <TextInput
+              style={[styles.input, { color: theme.text, borderColor: theme.text }]}
+              placeholder="e.g., I want to play with my toy."
+              placeholderTextColor="#888"
+              value={speechText}
+              onChangeText={setSpeechText}
+            />
+          </View>
 
-          <Collapsible title="Animations">
-            <ThemedText type="small">
-              This template includes an example of an animated component. The{' '}
-              <ThemedText type="code">src/components/ui/collapsible.tsx</ThemedText> component uses
-              the powerful <ThemedText type="code">react-native-reanimated</ThemedText> library to
-              animate opening this hint.
-            </ThemedText>
-          </Collapsible>
+          {/* Save Button */}
+          <Pressable style={styles.saveButton} onPress={handleSaveButton}>
+            <ThemedText style={styles.saveButtonText}>Save Button to Grid</ThemedText>
+          </Pressable>
         </ThemedView>
+
         {Platform.OS === 'web' && <WebBadge />}
       </ThemedView>
     </ScrollView>
@@ -136,45 +163,58 @@ const styles = StyleSheet.create({
   container: {
     maxWidth: MaxContentWidth,
     flexGrow: 1,
+    width: '100%',
+    paddingHorizontal: Spacing.four,
   },
   titleContainer: {
-    gap: Spacing.three,
+    gap: Spacing.one, // Tightened gap
     alignItems: 'center',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.six,
+    paddingVertical: Spacing.two, // Reduced from Spacing.four
   },
   centerText: {
     textAlign: 'center',
   },
-  pressed: {
-    opacity: 0.7,
-  },
-  linkButton: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.five,
-    justifyContent: 'center',
-    gap: Spacing.one,
-    alignItems: 'center',
-  },
-  sectionsWrapper: {
-    gap: Spacing.five,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
-  },
-  collapsibleContent: {
-    alignItems: 'center',
-  },
-  imageTutorial: {
+  formContainer: {
+    gap: Spacing.three, // Reduced gap between fields
     width: '100%',
-    aspectRatio: 296 / 171,
-    borderRadius: Spacing.three,
-    marginTop: Spacing.two,
+    paddingBottom: Spacing.four,
   },
-  imageReact: {
-    width: 100,
-    height: 100,
+  imagePreviewBox: {
+    width: 130, // Slightly reduced size to save vertical space
+    height: 130,
     alignSelf: 'center',
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    backgroundColor: 'rgba(150,150,150,0.05)',
+  },
+  capturedImage: {
+    width: '100%',
+    height: '100%',
+  },
+  inputGroup: {
+    gap: 4, // Tightened gap between label and input box
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8, // Slightly more compact padding
+    fontSize: 16,
+  },
+  saveButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: Spacing.one,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

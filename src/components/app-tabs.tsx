@@ -21,10 +21,13 @@ export default function AppTabs() {
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="explore">
-        <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>Add Icon</NativeTabs.Trigger.Label>
+        {/* 👉 Replaced png src with Apple's native SF Symbol for a camera */}
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
+          sf={{
+            default: 'camera',
+            selected: 'camera.fill',
+          }}
         />
       </NativeTabs.Trigger>
     </NativeTabs>
