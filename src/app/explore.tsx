@@ -47,9 +47,50 @@ export default function TabTwoScreen() {
     }
   };
 
+  const handlePickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert('Permission Denied', 'Photo library permission is required to select photos for buttons.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
+  const handleSelectImageSource = () => {
+    Alert.alert(
+      'Select Image Source',
+      'Choose how you would like to select an image:',
+      [
+        {
+          text: 'Take Photo',
+          onPress: handleTakePhoto,
+        },
+        {
+          text: 'Choose from Library',
+          onPress: handlePickImage,
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
   const handleSaveButton = async () => {
     if (!imageUri) {
-      Alert.alert('Missing Image', 'Please take a picture for the button first.');
+      Alert.alert('Missing Image', 'Please select or take a picture for the button first.');
       return;
     }
     if (!speechText) {
@@ -67,7 +108,7 @@ export default function TabTwoScreen() {
     try {
       await addCustomItem(newButton);
 
-      router.back()
+      router.back();
       
       setImageUri(null);
       setButtonLabel('');
@@ -100,18 +141,18 @@ export default function TabTwoScreen() {
         <ThemedView style={styles.titleContainer}>
           <ThemedText type="subtitle">Add Communication Button</ThemedText>
           <ThemedText style={styles.centerText} themeColor="textSecondary">
-            Take a photo, label it, and set the robotic voice phrase.
+            Select or take a photo, label it, and set the robotic voice phrase.
           </ThemedText>
         </ThemedView>
 
         <ThemedView style={styles.formContainer}>
           {/* Photo Preview / Capture Box */}
-          <Pressable style={[styles.imagePreviewBox, { borderColor: theme.text }]} onPress={handleTakePhoto}>
+          <Pressable style={[styles.imagePreviewBox, { borderColor: theme.text }]} onPress={handleSelectImageSource}>
             {imageUri ? (
               <Image source={{ uri: imageUri }} style={styles.capturedImage} />
             ) : (
               <ThemedText style={styles.centerText} type="small">
-                Tap here to open Camera & Take Picture
+                Tap here to add or take a photo
               </ThemedText>
             )}
           </Pressable>
