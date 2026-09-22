@@ -1,12 +1,12 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View, Image, Dimensions, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Image, ScrollView, ActivityIndicator } from 'react-native';
 import * as Speech from 'expo-speech';
 import { MenuView } from '@expo/ui/community/menu';
 
 import { ThemedText } from '@/components/themed-text';
 import { CommButton } from '@/types/comm';
-import { ALL_GRID_ITEMS } from '@/data/commData'; // chunkArray is no longer needed!
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { ALL_GRID_ITEMS } from '@/data/commData';
+import { Spacing } from '@/constants/theme';
 import { useComm } from '@/context/commContext';
 
 export function CommGrid() {
@@ -33,6 +33,7 @@ export function CommGrid() {
     <ScrollView 
       horizontal 
       showsHorizontalScrollIndicator={false}
+      style={styles.scrollWrapper}
       contentContainerStyle={styles.scrollContainer}
     >
       <View style={styles.gridContainer}>
@@ -45,8 +46,8 @@ export function CommGrid() {
               activeOpacity={0.7}
               onPress={() => handleWordPress(item)}
             >
-              <Image source={{ uri: item.imageUri }} style={styles.image} resizeMode="contain" />
-              <ThemedText type="small" style={styles.buttonLabel}>
+              <Image source={item.imageUri} style={styles.image} resizeMode="contain" />              
+              <ThemedText type="small" style={styles.buttonLabel} numberOfLines={1}>
                 {item.label}
               </ThemedText>
             </TouchableOpacity>
@@ -80,8 +81,8 @@ export function CommGrid() {
                   activeOpacity={0.7}
                   onPress={() => handleWordPress(item)}
                 >
-                  <Image source={{ uri: item.imageUri }} style={styles.image} resizeMode="contain" />
-                  <ThemedText type="small" style={styles.buttonLabel}>
+                  <Image source={item.imageUri} style={styles.image} resizeMode="contain" />              
+                  <ThemedText type="small" style={styles.buttonLabel} numberOfLines={1}>
                     {item.label}
                   </ThemedText>
                 </TouchableOpacity>
@@ -95,29 +96,32 @@ export function CommGrid() {
 }
 
 const styles = StyleSheet.create({
+  scrollWrapper: {
+    height: '95%', // Adjust this percentage to control how short the grid container is on screen
+    flexGrow: 0,   // Prevents ScrollView from taking all available vertical space
+  },
   scrollContainer: {
-    flexGrow: 1,
     paddingHorizontal: Spacing.one,
+    alignItems: 'center',
   },
   gridContainer: {
-    flex: 1,
-    flexDirection: 'column', // Flows top-to-bottom first, creating columns dynamically
-    flexWrap: 'wrap',        // Wraps into a new column after every 4 rows
+    height: '100%',
+    flexDirection: 'column', // Flows top-to-bottom to create vertical columns
+    flexWrap: 'wrap',        // Wraps to a new column after 3 items
     alignContent: 'flex-start',
-    paddingVertical: Spacing.one,
-    gap: 8,
-    padding: 8,
+    gap: 12,
   },
   gridButton: {
-    width: 100,              // Adjust fixed width per button as needed for column sizing
-    height: '23%',           // Ensures exactly 4 rows fit vertically inside the container
+    width: 130,              // Wider cards for 3x3 layout
+    height: '23%',           // Fits exactly 3 items vertically per column
     backgroundColor: 'rgba(150, 150, 150, 0.1)',
-    borderRadius: 12,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(150, 150, 150, 0.2)',
     overflow: 'hidden',
+    padding: 8,
   },
   fill: {
     width: '100%',
@@ -130,12 +134,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: '60%',
-    height: '60%',
+    width: '85%',
+    height: '70%',           // Maximize image size inside the card
     marginBottom: 4,
   },
   buttonLabel: {
-    fontSize: 11,
+    fontSize: 16,
     textAlign: 'center',
     fontWeight: '600',
   },

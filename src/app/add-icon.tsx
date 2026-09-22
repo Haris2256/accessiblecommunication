@@ -102,7 +102,7 @@ export default function TabTwoScreen() {
       id: Date.now().toString(),
       label: buttonLabel || speechText,
       speechText: speechText,
-      imageUri: imageUri,
+      imageUri: typeof imageUri === 'string' ? { uri: imageUri } : imageUri,
     };
 
     try {
@@ -121,13 +121,13 @@ export default function TabTwoScreen() {
 
   const contentPlatformStyle = Platform.select({
     android: {
-      paddingTop: Math.max(insets.top - 10, Spacing.two), // Reduced top padding
+      paddingTop: Math.max(insets.top - 10, Spacing.two),
       paddingLeft: insets.left,
       paddingRight: insets.right,
       paddingBottom: insets.bottom,
     },
     web: {
-      paddingTop: Spacing.three, // Reduced from Spacing.six
+      paddingTop: Spacing.three,
       paddingBottom: Spacing.four,
     },
   });

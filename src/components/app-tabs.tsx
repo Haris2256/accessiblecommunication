@@ -20,7 +20,7 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="explore">
+      <NativeTabs.Trigger name="add-icon">
         <NativeTabs.Trigger.Label>Add Icon</NativeTabs.Trigger.Label>
         {/* 👉 Replaced png src with Apple's native SF Symbol for a camera */}
         <NativeTabs.Trigger.Icon

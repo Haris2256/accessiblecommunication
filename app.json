@@ -41,15 +41,15 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "ce8fe24a-5dec-40c5-8d19-0faaf74e7234"
+        "projectId": "d9af3178-7c51-4e96-b3a5-697b2ae1a888"
       }
     },
-    "owner": "tmpzrr",
+    "owner": "tmpzrrs-team",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/ce8fe24a-5dec-40c5-8d19-0faaf74e7234"
+      "url": "https://u.expo.dev/d9af3178-7c51-4e96-b3a5-697b2ae1a888"
     }
   }
 }

@@ -11,8 +11,15 @@ export type ThemedTextProps = TextProps & {
 export function ThemedText({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) {
   const theme = useTheme();
 
+  const titleProps = type === 'title' ? {
+    numberOfLines: 1,
+    adjustsFontSizeToFit: true,
+    minimumFontScale: 0.5,
+  } : {};
+
   return (
     <Text
+      {...titleProps}
       style={[
         { color: theme[themeColor ?? 'text'] },
         type === 'default' && styles.default,
