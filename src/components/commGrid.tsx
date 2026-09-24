@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View, Image, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Image, ScrollView, ActivityIndicator, useWindowDimensions } from 'react-native';
 import * as Speech from 'expo-speech';
 import { MenuView } from '@expo/ui/community/menu';
 
@@ -11,6 +11,11 @@ import { useComm } from '@/context/commContext';
 
 export function CommGrid() {
   const { gridItems, deleteCustomItem, isLoading } = useComm();
+  const { width, height } = useWindowDimensions();
+
+  // Dynamically calculate button sizes based on device screen dimensions
+  const buttonWidth = width * 0.28;
+  const buttonHeight = height * 0.18;
 
   if (isLoading) {
     return (
@@ -42,7 +47,7 @@ export function CommGrid() {
 
           const buttonContent = (
             <TouchableOpacity
-              style={styles.gridButton}
+              style={[styles.gridButton, { width: buttonWidth, height: buttonHeight }]}
               activeOpacity={0.7}
               onPress={() => handleWordPress(item)}
             >
@@ -58,7 +63,7 @@ export function CommGrid() {
           }
 
           return (
-            <View key={item.id} style={styles.gridButton}>
+            <View key={item.id} style={[styles.gridButton, { width: buttonWidth, height: buttonHeight }]}>
               <MenuView
                 style={styles.fill}
                 shouldOpenOnLongPress={true}
@@ -97,23 +102,19 @@ export function CommGrid() {
 
 const styles = StyleSheet.create({
   scrollWrapper: {
-    height: '95%', // Adjust this percentage to control how short the grid container is on screen
-    flexGrow: 0,   // Prevents ScrollView from taking all available vertical space
+    flexGrow: 0,
   },
   scrollContainer: {
     paddingHorizontal: Spacing.one,
     alignItems: 'center',
   },
   gridContainer: {
-    height: '100%',
     flexDirection: 'column', // Flows top-to-bottom to create vertical columns
     flexWrap: 'wrap',        // Wraps to a new column after 3 items
     alignContent: 'flex-start',
     gap: 12,
   },
   gridButton: {
-    width: 130,              // Wider cards for 3x3 layout
-    height: '23%',           // Fits exactly 3 items vertically per column
     backgroundColor: 'rgba(150, 150, 150, 0.1)',
     borderRadius: 16,
     justifyContent: 'center',
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '85%',
-    height: '70%',           // Maximize image size inside the card
+    height: '70%',
     marginBottom: 4,
   },
   buttonLabel: {

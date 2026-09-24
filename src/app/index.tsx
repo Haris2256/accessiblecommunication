@@ -13,7 +13,7 @@ export default function HomeScreen() {
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.header}>
           <ThemedText type="title" style={styles.title}>
-            Communication Board
+            TalkPal
           </ThemedText>
         </ThemedView>
 
@@ -26,14 +26,12 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    width: '100%',
   },
   safeArea: {
     flex: 1,
     paddingHorizontal: Spacing.two,
     alignItems: 'center',
-    maxWidth: MaxContentWidth,
     paddingBottom: BottomTabInset + Spacing.two,
   },
   header: {

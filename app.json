@@ -3,12 +3,12 @@
     "name": "accessiblecommunication",
     "slug": "accessiblecommunication",
     "version": "1.0.0",
-    "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "accessiblecommunication",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
@@ -41,15 +41,15 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "0af29f77-0853-4cdf-9e89-f39e953026c9"
+        "projectId": "ce8fe24a-5dec-40c5-8d19-0faaf74e7234"
       }
     },
-    "owner": "tmpzrrs-team",
+    "owner": "tmpzrr",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/d9af3178-7c51-4e96-b3a5-697b2ae1a888"
+      "url": "https://u.expo.dev/ce8fe24a-5dec-40c5-8d19-0faaf74e7234"
     }
   }
 }
